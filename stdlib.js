@@ -1,6 +1,10 @@
 const global_obj = {}
 module.exports = {
   assign: function (ref, value) {
+    if (!ref.name) {
+      console.error('Argument 1 of assign must always be a VariableReference')
+      process.exit(1)
+    }
     global_obj[ref.name] = value.value
   },
   add: function (arg1, arg2) {
