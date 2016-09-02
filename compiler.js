@@ -17,9 +17,18 @@ var tokenizer = function (input) {
       pos++
       continue
     }
-    let whitespace = /\s/
+    let whitespace = /[#\s]/
     if (whitespace.test(char)) {
-      pos++
+      if (char === '#') {
+        comment = ''
+        while (char !== '\n') {
+          comment += char
+          char = input[++pos]
+        }
+        console.log("Ignoring comment: " + comment)
+      } else {
+        pos++
+      }
       continue
     }
     let numbers = /[0-9]/
