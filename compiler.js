@@ -25,7 +25,6 @@ var tokenizer = function (input) {
           comment += char
           char = input[++pos]
         }
-        console.log("Ignoring comment: " + comment)
       } else {
         pos++
       }
