@@ -18,8 +18,13 @@
 (myF) ; Calling an argument-less function
 (log 0)
 (log 0)
-(log 1)
 (log 0)
 (log 0)
 (log 0)
 (argTest 43 scopelol) ; Custom functions with arguments are called like any other
+(log "We got a string!")
+(argTest "You can call functions with strings!" "Yay!")
+(log "It supports multiline stri
+ngs without stupid escape 
+
+characters")

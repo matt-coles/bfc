@@ -6,6 +6,10 @@ Currently supports a few built-ins, `add`, `subtract`, `assign`, `def` and `log`
 they should be from `example.mc`. A `;` denotes that the rest of the line (until the compiler sees `\n`) as a comment and 
 means that it will not be compiled.
 
+In addition to the regular include(coming soon), there is also a preprocessing directive called `` `source <filename> `` which can be used 
+to just directly insert the contents of `<filename>` into the file. Instead of wasting the compilers energy checking for circular
+sources, you have two options, to not be so stupid or wait for the call stack to overflow.
+
 The compiler runs like `node compiler.js file.mc` where `file.mc` is the file you wish to compile, and this will produce an
 `output.js` which requires `stdlib.js` to be in the same directory when running for now at least.
 

@@ -1,5 +1,17 @@
 const fs = require('fs')
 
+var preprocess = function (input) {
+  let inputArr = input.split('\n')
+  for (i = 0; i < inputArr.length; i++) {
+    line = inputArr[i]
+    if (line.startsWith('`source')) {
+      line = fs.readFileSync(line.split(' ')[1], { encoding: 'utf-8' })
+      inputArr[i] = preprocess(line)
+    }
+  }
+  return inputArr.join('\n')
+}
+
 var tokenizer = function (input) {
   let pos = 0
   let tokens = []
@@ -28,6 +40,24 @@ var tokenizer = function (input) {
       } else {
         pos++
       }
+      continue
+    }
+    let stringChars = /['"]/
+    if (stringChars.test(char)) {
+      let myDelim = char
+      let stringString = ''
+      char = input[++pos]
+      while (char !== myDelim) {
+        if (char !== '\n') {
+          stringString += char
+        }
+        char = input[++pos]
+      }
+      pos++
+      tokens.push({
+        type: 'string',
+        value: stringString
+      })
       continue
     }
     let numbers = /[0-9]/
@@ -110,6 +140,14 @@ var parser = function (input) {
       }
     }
 
+    if (token.type === 'string') {
+      pos++
+      return {
+        type: 'StringLiteral',
+        value: token.value
+      }
+    }
+
     if (token.type === 'paren' && token.value == '(') {
       token = input[++pos]
       if (token.type !== 'name') {
@@ -171,6 +209,8 @@ var traverser = function (ast, visitor) {
         break
       case 'NumberLiteral':
         break
+      case 'StringLiteral':
+        break
       case 'DollarVar':
         break
       default:
@@ -197,6 +237,12 @@ var transformer = function (ast) {
     NumberLiteral: function (node, parent) {
       parent._context.push({
         type: 'NumberLiteral',
+        value: node.value
+      })
+    },
+    StringLiteral: function (node, parent) {
+      parent._context.push({
+        type: 'StringLiteral',
         value: node.value
       })
     },
@@ -277,6 +323,9 @@ var generator = function (node) {
     case 'NumberLiteral':
       return '{value: ' + node.value + '}'
       break
+    case 'StringLiteral':
+      return '{ value: \'' + node.value + '\' }'
+      break
     default:
       throw {
         name: 'Compiler Error',
@@ -290,7 +339,8 @@ var generator = function (node) {
 
 // const myInput = '(assign twelve 12) (assign myvar (add twelve (subtract 6 2))) (log myvar)'
 const myInput = fs.readFileSync(process.argv[2], { encoding: 'utf-8' })
-const myTokens = tokenizer(myInput)
+const preProcessedInput = preprocess(myInput)
+const myTokens = tokenizer(preProcessedInput)
 const parsedTree = parser(myTokens)
 const transformedTree = transformer(parsedTree)
 //console.log(JSON.stringify(transformedTree,null,2))
