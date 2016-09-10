@@ -56,6 +56,25 @@ var tokenizer = function (input) {
       })
       continue
     }
+    let dollar = /[$]/
+    if (dollar.test(char)) {
+      let name = ''
+      char = input[++pos]
+      if (numbers.test(char)) {
+        while (numbers.test(char)) {
+          name += char
+          char = input[++pos]
+        }
+      } else {
+        console.error("Compiler Error: $ must be followed by a digit [0-9]")
+        process.exit(1);
+      }
+      tokens.push({
+        type: 'dollar',
+        value: name
+      })
+      continue
+    }
     throw new TypeError("I'm not sure what you are telling me :( Ask my creator to teach me what a: " + char + " is.")
   }
   return tokens
@@ -79,6 +98,14 @@ var parser = function (input) {
       pos++
       return {
         type: 'VariableReference',
+        value: token.value
+      }
+    }
+
+    if (token.type === 'dollar') {
+      pos++
+      return {
+        type: 'DollarVar',
         value: token.value
       }
     }
@@ -144,6 +171,8 @@ var traverser = function (ast, visitor) {
         break
       case 'NumberLiteral':
         break
+      case 'DollarVar':
+        break
       default:
         throw {
           name: 'Compiler Error',
@@ -174,6 +203,12 @@ var transformer = function (ast) {
     VariableReference: function (node, parent) {
       parent._context.push({
         type: 'VariableReference',
+        value: node.value
+      })
+    },
+    DollarVar: function (node, parent) {
+      parent._context.push({
+        type: 'DollarVar',
         value: node.value
       })
     },
@@ -214,7 +249,24 @@ var generator = function (node) {
       return (generator(node.expr) + ';')
       break
     case 'FunctionCall':
-      return (generator(node.callee) + '(' + node.args.map(generator).join(', ') + ')')
+      if (node.callee.name !== 'def') {
+        return (generator(node.callee) + '(' + node.args.map(generator).join(', ') + ')')
+      } else {
+        return (generator(node.callee) + '(' + node.args.map((v, i) => {
+          if (i === 0) {
+            return generator(v) + ', '
+          } else {
+            if (i === 1) {
+              return "'" + generator(v) + '; '
+            } else {
+              return generator(v) + '; '
+            }
+          }
+        }).join('') + "')")
+      }
+      break;
+    case 'DollarVar':
+      return '$' + node.value
       break
     case 'FunctionName':
       return '_.' + node.name
@@ -241,5 +293,6 @@ const myInput = fs.readFileSync(process.argv[2], { encoding: 'utf-8' })
 const myTokens = tokenizer(myInput)
 const parsedTree = parser(myTokens)
 const transformedTree = transformer(parsedTree)
+//console.log(JSON.stringify(transformedTree,null,2))
 const output = generator(transformedTree)
 fs.writeFileSync('output.js', output)

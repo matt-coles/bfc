@@ -1,5 +1,7 @@
 const global_obj = {}
-module.exports = {
+const function_defs = {}
+const warnings = {}
+const builtins = {
   assign: function (ref, value) {
     if (!ref.name) {
       console.error('Argument 1 of assign must always be a VariableReference')
@@ -25,5 +27,37 @@ module.exports = {
       name: refname,
       value: global_obj[refname]
     }
+  },
+  def: function (prop, body) {
+    let methods = Object.keys(function_defs)
+    if (methods.includes(prop.name)) {
+      console.warn("Warning! Redefining function, did you mean to do this?")
+    }
+    function_defs[prop.name] = body;
   }
 }
+
+
+const my_handler = {
+  get: function (target, prop) {
+    let methods = Object.keys(builtins)
+    if (methods.includes(prop)) {
+      return builtins[prop]
+    } else {
+      methods = Object.keys(function_defs)
+      if (methods.includes(prop)) {
+        return (function () { eval(function_defs[prop].replace(/\$(\d+)/g, (m, n) => JSON.stringify(arguments[(+n-1)]))) })
+      } else {
+        console.error("Undefined function call! No such function: ", prop)
+      }
+    }
+  }, 
+  set: function (target, prop, data) {
+    if (prop === 'w') data.map((w) => warnings.w = true)
+    else console.error("Attempting to set unknown property on interpreter! How did you do that?")
+  }
+}
+
+const _ = new Proxy({}, my_handler)
+
+module.exports = _

@@ -5,3 +5,21 @@
 (log 6) # This logs the number literal 6
 (assign twelve myvar) # This reassigns the variable twelve to the value of the variable myvar
 (log twelve) # This logs the new value of the variable twelve
+# An example function definition
+(def myF 
+  (log 0) 
+  (log twelve) 
+  (log 6) 
+  (log 6) 
+  (assign scopelol (add twelve 5)) 
+  (log scopelol)
+)
+(def argTest (log $1) (log $2)) # Functions take an unlimited number of arguments that can be referred to by $n
+(myF) # Calling an argument-less function
+(log 0)
+(log 0)
+(log 0)
+(log 0)
+(log 0)
+(log 0)
+(argTest 43 scopelol) # Custom functions with arguments are called like any other
