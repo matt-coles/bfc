@@ -17,9 +17,9 @@ var tokenizer = function (input) {
       pos++
       continue
     }
-    let whitespace = /[#\s]/
+    let whitespace = /[;\s]/
     if (whitespace.test(char)) {
-      if (char === '#') {
+      if (char === ';') {
         comment = ''
         while (char !== '\n') {
           comment += char
