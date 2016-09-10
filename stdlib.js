@@ -34,6 +34,35 @@ const builtins = {
       console.warn("Warning! Redefining function, did you mean to do this?")
     }
     function_defs[prop.name] = body;
+  },
+  repeat: function (amount, body) {
+    for (i = 0 ; i < amount.value; i++) {
+        body() 
+    }
+  },
+  eQ: function (arg1, arg2) {
+    return {
+      value: arg1.value === arg2.value
+    }
+  },
+  eq: function (arg1, arg2) {
+    return {
+      value: arg1.value == arg2.value
+    }
+  },
+  if: function (pred, body_true, body_false) {
+    if (pred.value) {
+      body_true()
+    } else {
+      if (body_false) {
+        body_false()
+      }
+    }
+  },
+  modulo: function (arg1, arg2) {
+    return {
+      value: (arg1.value % arg2.value)
+    }
   }
 }
 
@@ -46,7 +75,8 @@ const my_handler = {
     } else {
       methods = Object.keys(function_defs)
       if (methods.includes(prop)) {
-        return (function () { eval(function_defs[prop].replace(/\$(\d+)/g, (m, n) => JSON.stringify(arguments[(+n-1)]))) })
+        //return (function () { eval(function_defs[prop].replace(/\$(\d+)/g, (m, n) => JSON.stringify(arguments[(+n-1)]))) })
+        return function_defs[prop]
       } else {
         console.error("Undefined function call! No such function: ", prop)
       }

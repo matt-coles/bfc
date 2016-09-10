@@ -29,6 +29,14 @@ var tokenizer = function (input) {
       pos++
       continue
     }
+    if (char === '|') {
+      tokens.push({
+        type: 'bar',
+        value: char
+      })
+      pos++
+      continue
+    }
     let whitespace = /[;\s]/
     if (whitespace.test(char)) {
       if (char === ';') {
@@ -140,6 +148,14 @@ var parser = function (input) {
       }
     }
 
+    if (token.type === 'bar') {
+      pos++
+      return {
+        type: 'BarLiteral',
+        value: token.value
+      }
+    }
+
     if (token.type === 'string') {
       pos++
       return {
@@ -213,6 +229,8 @@ var traverser = function (ast, visitor) {
         break
       case 'DollarVar':
         break
+      case 'BarLiteral':
+        break
       default:
         throw {
           name: 'Compiler Error',
@@ -243,6 +261,12 @@ var transformer = function (ast) {
     StringLiteral: function (node, parent) {
       parent._context.push({
         type: 'StringLiteral',
+        value: node.value
+      })
+    },
+    BarLiteral: function (node, parent) {
+      parent._context.push({
+        type: 'BarLiteral',
         value: node.value
       })
     },
@@ -282,7 +306,7 @@ var transformer = function (ast) {
   return newAst
 }
 
-
+var escapeDepth = 0
 var generator = function (node) {
 
   switch (node.type) {
@@ -295,7 +319,7 @@ var generator = function (node) {
       return (generator(node.expr) + ';')
       break
     case 'FunctionCall':
-      if (node.callee.name !== 'def') {
+      if (!node.callee.name.match('(def|if|repeat)')) {
         return (generator(node.callee) + '(' + node.args.map(generator).join(', ') + ')')
       } else {
         return (generator(node.callee) + '(' + node.args.map((v, i) => {
@@ -303,22 +327,25 @@ var generator = function (node) {
             return generator(v) + ', '
           } else {
             if (i === 1) {
-              return "'" + generator(v) + '; '
+              return 'function() {' + generator(v) + ';'
             } else {
               return generator(v) + '; '
             }
           }
-        }).join('') + "')")
+        }).join('') + '})')
       }
       break;
     case 'DollarVar':
-      return '$' + node.value
+      return 'arguments[' + (+node.value-1) + ']'
+      break
+    case 'BarLiteral':
+      return '}, function() {'
       break
     case 'FunctionName':
       return '_.' + node.name
       break
     case 'VariableReference':
-      return '_.ref("' + node.value + '")'
+      return '_.ref(\'' + node.value + '\')'
       break
     case 'NumberLiteral':
       return '{value: ' + node.value + '}'
@@ -338,6 +365,8 @@ var generator = function (node) {
 
 
 // const myInput = '(assign twelve 12) (assign myvar (add twelve (subtract 6 2))) (log myvar)'
+const fileNameIn = process.argv[2]
+const fileNameOut = fileNameIn + '.js'
 const myInput = fs.readFileSync(process.argv[2], { encoding: 'utf-8' })
 const preProcessedInput = preprocess(myInput)
 const myTokens = tokenizer(preProcessedInput)
@@ -345,4 +374,4 @@ const parsedTree = parser(myTokens)
 const transformedTree = transformer(parsedTree)
 //console.log(JSON.stringify(transformedTree,null,2))
 const output = generator(transformedTree)
-fs.writeFileSync('output.js', output)
+fs.writeFileSync(fileNameOut, output)
