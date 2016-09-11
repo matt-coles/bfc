@@ -312,7 +312,7 @@ var generator = function (node) {
   switch (node.type) {
     case 'Prog':
       let program = node.body.map(generator)
-      program.unshift('var _ = require("./lib/stdlib.js")(this)')
+      program.unshift('var _ = require("./libjs/stdlib.js")(this)')
       return program.join('\n')
       break
     case 'Statement':
@@ -322,13 +322,10 @@ var generator = function (node) {
       if (!node.callee.name.match('(def|if|repeat)')) {
         if (node.callee.name.match('include')) {
           // Include is a special function and we will write the generation ourselves
-          if (node.args.length > 1) {
-            console.error("Compiler Error: (include) may only take 1 argument!")
-            process.exit(1)
-          } else {
-            let lib = './lib/' + node.args[0].value + '.js'
-            return ('var _' + node.args[0].value + ' = require("' + lib + '")(this)')
-          }
+          return node.args.map((arg) => {
+            let lib = './libjs/' + arg.value + '.js'
+            return ('var _' + arg.value + ' = require("' + lib + '")(this)')
+          }).join("\n")
         } else {
           return (generator(node.callee) + '(' + node.args.map(generator).join(', ') + ')')
         }
@@ -379,15 +376,14 @@ var generator = function (node) {
 
 }
 
-
-// const myInput = '(assign twelve 12) (assign myvar (add twelve (subtract 6 2))) (log myvar)'
 const fileNameIn = process.argv[2]
 const fileNameOut = fileNameIn + '.js'
 const myInput = fs.readFileSync(process.argv[2], { encoding: 'utf-8' })
-const preProcessedInput = preprocess(myInput)
-const myTokens = tokenizer(preProcessedInput)
-const parsedTree = parser(myTokens)
-const transformedTree = transformer(parsedTree)
-//console.log(JSON.stringify(transformedTree,null,2))
-const output = generator(transformedTree)
+
+const preProcessedInput = preprocess(myInput) // Run the preprocessor to evaluate any `source's
+const myTokens = tokenizer(preProcessedInput) // Convert our input into individual tokens
+const parsedTree = parser(myTokens) // Convert these tokens into a syntax tree
+const transformedTree = transformer(parsedTree) // Now put the tree into an easily traversable format for our generator
+const output = generator(transformedTree) // Generate the final JS code
+
 fs.writeFileSync(fileNameOut, output)
