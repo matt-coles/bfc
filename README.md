@@ -1,4 +1,4 @@
-# babys-first-compiler
+# big-friendly-compiler
 
 A basic compiler based off of @thejameskyle's super-tiny-compiler, compiles a simple LISP-esque syntax into runnable JS.
 
