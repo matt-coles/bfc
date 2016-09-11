@@ -1,8 +1,12 @@
+(include str)
 (def fizzbuzz
   (assign i 1)
   (repeat $1
-    (if (eq (modulo i 3) 0) (if (eq (modulo i 5) 0) (log "FizzBuzz") | (log "Fizz")))
-    (if (eq (modulo i 5) 0) (log "Buzz") | (log i))
+    (assign result "")
+    (if (eq (modulo i 3) 0) (assign result (str::concat result "Fizz")))
+    (if (eq (modulo i 5) 0) (assign result (str::concat result "Buzz")))
+    (if (eq result "") (assign result i))
+    (log result)
     (assign i (add i 1))
   )
 )

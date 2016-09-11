@@ -1,4 +1,5 @@
 ; This is a test program
+(include str)
 (assign twelve 12) ; This assigns the variable twelve, to the number literal 12
 (assign myvar (add twelve (subtract 6 2))) ; This assigns the variable myvar, to the result of adding the variable twelve to the result of subtracting 2 from 6
 (log myvar) ; This logs the value of myvar
@@ -32,3 +33,4 @@ characters")
 (log scopelol)
 (repeat scopelol (log 10))
 (if (eq 2 scopelol) (log "2 == scopelol") | (log "2 != scopelol"))
+(log (str::concat "Hello " "World!"))

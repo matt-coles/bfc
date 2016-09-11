@@ -81,7 +81,7 @@ var tokenizer = function (input) {
       })
       continue
     }
-    let characters = /[a-zA-Z_]/
+    let characters = /[a-zA-Z_:]/
     if (characters.test(char)) {
       let name = ''
       while (characters.test(char)) {
@@ -312,7 +312,7 @@ var generator = function (node) {
   switch (node.type) {
     case 'Prog':
       let program = node.body.map(generator)
-      program.unshift('var _ = require("./stdlib.js")')
+      program.unshift('var _ = require("./lib/stdlib.js")(this)')
       return program.join('\n')
       break
     case 'Statement':
@@ -320,16 +320,27 @@ var generator = function (node) {
       break
     case 'FunctionCall':
       if (!node.callee.name.match('(def|if|repeat)')) {
-        return (generator(node.callee) + '(' + node.args.map(generator).join(', ') + ')')
+        if (node.callee.name.match('include')) {
+          // Include is a special function and we will write the generation ourselves
+          if (node.args.length > 1) {
+            console.error("Compiler Error: (include) may only take 1 argument!")
+            process.exit(1)
+          } else {
+            let lib = './lib/' + node.args[0].value + '.js'
+            return ('var _' + node.args[0].value + ' = require("' + lib + '")(this)')
+          }
+        } else {
+          return (generator(node.callee) + '(' + node.args.map(generator).join(', ') + ')')
+        }
       } else {
         return (generator(node.callee) + '(' + node.args.map((v, i) => {
           if (i === 0) {
             return generator(v) + ', '
           } else {
             if (i === 1) {
-              return 'function() {' + generator(v) + ';'
+              return 'function() { \n' + generator(v) + ';\n'
             } else {
-              return generator(v) + '; '
+              return generator(v) + ';\n'
             }
           }
         }).join('') + '})')
@@ -342,7 +353,12 @@ var generator = function (node) {
       return '}, function() {'
       break
     case 'FunctionName':
-      return '_.' + node.name
+      if (node.name.match("::")) {
+        let [namespace, func] = node.name.split("::")
+        return "_" + namespace + "." + func
+      } else {
+        return '_.' + node.name
+      }
       break
     case 'VariableReference':
       return '_.ref(\'' + node.value + '\')'
