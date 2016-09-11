@@ -9,6 +9,6 @@
     (log result)
     (assign i (add i 1))
   )
-)
+1)
 
 (fizzbuzz 100)
