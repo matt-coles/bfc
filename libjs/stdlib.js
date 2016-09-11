@@ -84,7 +84,6 @@ const my_handler = {
     } else {
       methods = Object.keys(function_defs)
       if (methods.includes(prop)) {
-        //return (function () { eval(function_defs[prop].replace(/\$(\d+)/g, (m, n) => JSON.stringify(arguments[(+n-1)]))) })
         return function_defs[prop]
       } else {
         console.error("Undefined function call! No such function: ", prop)
