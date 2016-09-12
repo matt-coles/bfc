@@ -1,21 +1,10 @@
+var fs = require("fs")
+
 const builtins = {
-  concat: function () {
-    let str = ""
-    for (let i = 0; i < arguments.length; i++) {
-      str += arguments[i].value
-    }
+  readIn: function (path) {
+    let str = fs.readFileSync(path.value, { encoding: 'utf-8' })
     return {
       value: str
-    }
-  },
-  length: function (str) {
-    return {
-      value: str.value.length
-    }
-  }, 
-  charAtIndex: function (str, i) {
-    return {
-      value: str.value.charAt(i.value)
     }
   }
 }
