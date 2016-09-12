@@ -20,7 +20,7 @@ const builtins = {
     }
   },
   log: function (ref) {
-    console.log(ref.value)
+    console.log(JSON.stringify(ref.value))
   },
   ref: function (refname) {
     return {
@@ -71,6 +71,11 @@ const builtins = {
   modulo: function (arg1, arg2) {
     return {
       value: (arg1.value % arg2.value)
+    }
+  },
+  multiply: function (arg1, arg2) {
+    return {
+      value: (arg1.value * arg2.value)
     }
   }
 }
