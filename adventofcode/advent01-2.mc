@@ -1,0 +1,13 @@
+; Requires the input for Advent of Code(http://adventofcode.com/) Day 1
+(include str fs maths)
+(assign input (fs::readIn "advent.txt"))
+(assign i 0)
+(assign result 0)
+(repeat (str::length input)
+  (assign current (str::charAtIndex input i))
+  (if (eq result "-1") (log i))
+  (if (eq current "(") (assign result (maths::add result 1)))
+  (if (eq current ")") (assign result (maths::subtract result 1)))
+  (assign i (maths::add i 1))
+)
+(log result)
