@@ -6,6 +6,26 @@ const builtins = {
     return {
       value: Math.min.apply(null, argArr.map((arg) => arg.value))
     }
+  },
+  add: function (arg1, arg2) {
+    return {
+      value: (arg1.value + arg2.value)
+    }
+  },
+  subtract: function (arg1, arg2) {
+    return {
+      value: (arg1.value - arg2.value)
+    }
+  },
+  multiply: function (arg1, arg2) {
+    return {
+      value: (arg1.value * arg2.value)
+    }
+  },
+  modulo: function (arg1, arg2) {
+    return {
+      value: (arg1.value % arg2.value)
+    }
   }
 }
 

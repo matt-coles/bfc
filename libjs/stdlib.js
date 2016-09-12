@@ -9,18 +9,8 @@ const builtins = {
     }
     global_obj[ref.name] = value.value
   },
-  add: function (arg1, arg2) {
-    return {
-      value: (arg1.value + arg2.value)
-    }
-  },
-  subtract: function (arg1, arg2) {
-    return {
-      value: (arg1.value - arg2.value)
-    }
-  },
   log: function (ref) {
-    console.log(JSON.stringify(ref.value))
+    console.log(ref.value)
   },
   ref: function (refname) {
     return {
@@ -68,16 +58,6 @@ const builtins = {
   neg: function (pred) {
     return !pred
   },
-  modulo: function (arg1, arg2) {
-    return {
-      value: (arg1.value % arg2.value)
-    }
-  },
-  multiply: function (arg1, arg2) {
-    return {
-      value: (arg1.value * arg2.value)
-    }
-  }
 }
 
 

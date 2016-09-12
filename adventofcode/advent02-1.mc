@@ -10,10 +10,10 @@
 (repeat (str::length input)
   (assign current (str::charAtIndex input i))
   (if (eq current "x") 
-    (assign currNum (add currNum 1)) |
+    (assign currNum (maths::add currNum 1)) |
     (if (eq current "\n") 
       (assign currNum 1) 
-      (assign result (add result (add (add (multiply 2 (multiply resultone resulttwo)) (add (multiply 2 (multiply resulttwo resultthree)) (multiply 2 (multiply resultone resultthree)))) (maths::min (multiply resultone resulttwo) (multiply resulttwo resultthree) (multiply resultthree resultone)))))
+      (assign result (maths::add result (maths::add (maths::add (maths::multiply 2 (maths::multiply resultone resulttwo)) (maths::add (maths::multiply 2 (maths::multiply resulttwo resultthree)) (maths::multiply 2 (maths::multiply resultone resultthree)))) (maths::min (maths::multiply resultone resulttwo) (maths::multiply resulttwo resultthree) (maths::multiply resultthree resultone)))))
       (assign resultone "")
       (assign resulttwo "")
       (assign resultthree "") | 
@@ -22,6 +22,6 @@
         (if (eq currNum 3) (assign resultthree (str::concat resultthree current)))
     )
   )
-  (assign i (add i 1))
+  (assign i (maths::add i 1))
 )
 (log result)
