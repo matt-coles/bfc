@@ -1,5 +1,4 @@
 ; Requires the input for Advent of Code(http://adventofcode.com/) Day 1
-(log result)
 (include str fs)
 (assign input (fs::readIn "advent.txt"))
 (assign i 0)
