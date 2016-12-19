@@ -32,5 +32,5 @@ characters")
 (repeat 5 (log 10))
 (log scopelol)
 (repeat scopelol (log 10))
-(if (eq 2 scopelol) (log "2 == scopelol") | (log "2 != scopelol"))
+(if (eq 2 scopelol) (log "2 == scopelol") | (log "2 != scopelol")) ; Using a bar is similar to 'else' in a normal language
 (log (str::concat "Hello " "World!"))
