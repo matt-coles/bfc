@@ -1,12 +1,20 @@
 const fs = require('fs')
+const sourcedFiles = []
 
-var preprocess = function (input) {
+var preprocess = function (fileNameIn, input) {
   let inputArr = input.split('\n')
+  sourcedFiles.push(fileNameIn)
   for (i = 0; i < inputArr.length; i++) {
     line = inputArr[i]
     if (line.startsWith('`source')) {
-      line = fs.readFileSync(line.split(' ')[1], { encoding: 'utf-8' })
-      inputArr[i] = preprocess(line)
+      let fileName = line.split(' ')[1]
+      if (!~sourcedFiles.indexOf(fileName)) {
+        line = fs.readFileSync(fileName, { encoding: 'utf-8' })
+        inputArr[i] = preprocess(fileName, line)
+      } else {
+        inputArr[i] = '\n'
+        console.log('Already sourced file: ' + fileName + '; Skipping!')
+      }
     }
   }
   return inputArr.join('\n')
@@ -37,9 +45,9 @@ var tokenizer = function (input) {
       pos++
       continue
     }
-    let whitespace = /[;\s]/
+    let whitespace = /[;\s]/ // Include comments as a whitespace character as they are ignored
     if (whitespace.test(char)) {
-      if (char === ';') {
+      if (char === ';') { // Rest of line is ignored
         comment = ''
         while (char !== '\n') {
           comment += char
@@ -426,7 +434,7 @@ const fileNameIn = process.argv[2]
 const fileNameOut = fileNameIn + '.js'
 const myInput = fs.readFileSync(process.argv[2], { encoding: 'utf-8' })
 
-const preProcessedInput = preprocess(myInput) // Run the preprocessor to evaluate any `source's
+const preProcessedInput = preprocess(fileNameIn, myInput) // Run the preprocessor to evaluate any `source's
 const myTokens = tokenizer(preProcessedInput) // Convert our input into individual tokens
 const parsedTree = parser(myTokens) // Convert these tokens into a syntax tree
 const transformedTree = transformer(parsedTree) // Now put the tree into an easily traversable format for our generator
