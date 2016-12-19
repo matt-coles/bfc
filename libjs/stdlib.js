@@ -58,6 +58,13 @@ const builtins = {
   neg: function (pred) {
     return !pred
   },
+  __get_arg: function (arg) {
+    if (process.argv.length > arg) {
+      return { value: process.argv[arg] }
+    } else {
+      return { value: "" }
+    }
+  }
 }
 
 

@@ -11,4 +11,5 @@
   )
 1)
 
-(fizzbuzz 100)
+(if (eq {1} "")
+  (fizzbuzz 25) | (fizzbuzz {1}))

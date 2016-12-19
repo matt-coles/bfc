@@ -113,6 +113,15 @@ var tokenizer = function (input) {
       })
       continue
     }
+    let argv = /[{}]/
+    if (argv.test(char)) {
+      tokens.push({
+        type: 'argv',
+        value: char
+      })
+      pos++
+      continue
+    }
     throw new TypeError("I'm not sure what you are telling me :( Ask my creator to teach me what a: " + char + " is.")
   }
   return tokens
@@ -186,6 +195,28 @@ var parser = function (input) {
       return node
     }
 
+    if (token.type === 'argv' && token.value == '{') {
+      token = input[++pos]
+      if (token.type !== 'number') {
+        throw {
+          name: 'Compiler Error',
+          message: 'argv may only take integer values.'
+        }
+      }
+      let node = {
+        type: 'ArgvLiteral',
+        value: token.value
+      }
+      token = input[++pos]
+      if (token.type !== 'argv' || token.value !== '}') {
+        throw {
+          name: 'Compiler Error',
+          message: 'argv literals take one integer value and nothing else.'
+        }
+      }
+      pos++
+      return node
+    }
     throw new TypeError(token.type)
   }
 
@@ -230,6 +261,8 @@ var traverser = function (ast, visitor) {
       case 'DollarVar':
         break
       case 'BarLiteral':
+        break
+      case 'ArgvLiteral':
         break
       default:
         throw {
@@ -279,6 +312,12 @@ var transformer = function (ast) {
     DollarVar: function (node, parent) {
       parent._context.push({
         type: 'DollarVar',
+        value: node.value
+      })
+    },
+    ArgvLiteral: function (node, parent) {
+      parent._context.push({
+        type: 'ArgvLiteral',
         value: node.value
       })
     },
@@ -365,6 +404,13 @@ var generator = function (node) {
       break
     case 'StringLiteral':
       return '{ value: \'' + node.value + '\' }'
+      break
+    case 'ArgvLiteral':
+      if (node.value === 0) {
+        return '{ value: process.argv.slice(2).join(\' \') }'
+      } else {
+        return '_.__get_arg(' + (+node.value+1) + ')'
+      }
       break
     default:
       throw {
