@@ -11,7 +11,8 @@ In addition to the regular include, there is a preprocessing directive called ``
 to just directly insert the contents of `<filename>` into the file. -Instead of wasting the compilers energy checking for circular sources, you have two options, to not be so stupid or wait for the call stack to overflow.- Yay now the compiler protects you against circular sources, or sourcing the same file more than once by skipping these when it encounters them, this means that order is now important. Although it always was.
 
 The compiler runs like `node compiler.js file.mc` where `file.mc` is the file you wish to compile, and this will produce a
-`file.mc.js` which requires the `libjs` directory to be present in the same directory when running for now at least.
+`file.mc.js` which requires the `libjs` directory to be present in the same directory when running or for the environment variable
+`LIBJS_PATH` to have been set whilst compiling.
 
 Functions and variables are in different scopes, so variables can have the same names as functions - even builtins -
 thus making `(assign assign 5)` a totally okay thing to do. However note that builtins and defined functions are in the same scope no matter what and attempting to define a function with the same name as a builtin will not work properly.
