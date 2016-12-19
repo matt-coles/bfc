@@ -406,7 +406,7 @@ var generator = function (node) {
       return '{ value: \'' + node.value + '\' }'
       break
     case 'ArgvLiteral':
-      if (node.value === 0) {
+      if (node.value === '0') {
         return '{ value: process.argv.slice(2).join(\' \') }'
       } else {
         return '_.__get_arg(' + (+node.value+1) + ')'

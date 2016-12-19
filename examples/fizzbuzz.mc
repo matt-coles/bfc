@@ -11,5 +11,7 @@
   )
 1)
 
+(log {0})
+
 (if (eq {1} "")
   (fizzbuzz 25) | (fizzbuzz {1}))
