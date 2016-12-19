@@ -1,6 +1,6 @@
 # big-friendly-compiler
 
-A basic compiler based off of @thejameskyle's super-tiny-compiler, compiles a simple LISP-esque syntax into runnable JS.
+A compiled language with none of the benefits of compiled languages!
 
 Currently supports quite a few builtins, which you can mostly see in the examples for now, documentation is in the works if you're interested. Hopefully most of these are self-explanatory from `example.mc` and `fizzbuzz.mc`. A `;` denotes that the rest of the line (until the compiler sees `\n`) as a comment and 
 means that it will not be compiled.
